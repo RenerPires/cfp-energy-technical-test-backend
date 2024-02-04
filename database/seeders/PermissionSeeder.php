@@ -15,10 +15,11 @@ class PermissionSeeder extends Seeder
     {
         Permission::create(['name' => 'view-users']);
         Permission::create(['name' => 'create-users']);
-        Permission::create(['name' => 'edit-users']);
+        Permission::create(['name' => 'update-users']);
         Permission::create(['name' => 'delete-users']);
         Permission::create(['name' => 'inactivate-users']);
         Permission::create(['name' => 'activate-users']);
-        Permission::create(['name' => 'all']);
+        Permission::create(['name' => 'grant-permissions']);
+        Permission::create(['name' => 'revoke-permissions']);
     }
 }

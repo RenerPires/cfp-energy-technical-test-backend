@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
 use Mockery\Exception;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Translation\Exception\NotFoundResourceException;
 use Illuminate\Support\Facades\Validator;
 
@@ -18,7 +19,7 @@ class UserController extends Controller
     {
         try {
             $users = UserService::getAllUsers();
-        } catch (Exception $exception) {
+        } catch (AccessDeniedHttpException|Exception $exception) {
             return response()->json([
                 'status' => false,
                 'errors' => $exception->getMessage()
@@ -31,22 +32,22 @@ class UserController extends Controller
     }
     public function getUserById(string $userId): JsonResponse
     {
-            $validated = Validator::make(
-                ['userId' => $userId],
-                ['userId' => 'required|string|uuid'],
-            );
+        $validated = Validator::make(
+            ['userId' => $userId],
+            ['userId' => 'required|string|uuid'],
+        );
 
-            if($validated->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'validation error',
-                    'errors' => $validated->messages()
-                ], 422);
-            }
+        if($validated->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'validation error',
+                'errors' => $validated->messages()
+            ], 422);
+        }
 
         try {
             $user = UserService::findUserById($userId);
-        } catch (NotFoundResourceException $exception) {
+        } catch (AccessDeniedHttpException|NotFoundResourceException|Exception $exception) {
             return response()->json([
                 'status' => false,
                 'errors' => $exception->getMessage()
@@ -91,8 +92,7 @@ class UserController extends Controller
 
         try {
             $user = UserService::createUser($payload);
-            $user->assignRole('user');
-        } catch (Exception $exception) {
+        } catch (AccessDeniedHttpException|Exception $exception) {
             return response()->json([
                 'status' => false,
                 'errors' => $exception->getMessage()
@@ -129,7 +129,7 @@ class UserController extends Controller
 
         try {
             $model = UserService::updateUser($userId, $payload);
-        } catch (NotFoundResourceException|Exception $exception) {
+        } catch (AccessDeniedHttpException|NotFoundResourceException|Exception $exception) {
             return response()->json([
                 'status' => false,
                 "errors" => $exception->getMessage()
@@ -154,7 +154,7 @@ class UserController extends Controller
 
         try {
             UserService::deleteUser($userId);
-        } catch (NotFoundResourceException|Exception $exception) {
+        } catch (AccessDeniedHttpException|NotFoundResourceException|Exception $exception) {
             return response()->json([
                 'status' => false,
                 'errors' => $exception->getMessage()
