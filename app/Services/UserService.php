@@ -59,4 +59,28 @@ class UserService
 
         $user->delete();
     }
+    public static function inactivateUser($userId)
+    {
+        $user = User::find($userId);
+
+        if(!$user) {
+            throw new NotFoundResourceException("User with id {$userId} not found", 404);
+        }
+
+        $user->update(["is_active" => false]);
+
+        return $user;
+    }
+    public static function activateUser($userId)
+    {
+        $user = User::find($userId);
+
+        if(!$user) {
+            throw new NotFoundResourceException("User with id {$userId} not found", 404);
+        }
+
+        $user->update(["is_active" => true]);
+
+        return $user;
+    }
 }
