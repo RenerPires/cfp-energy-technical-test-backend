@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\User;
-use ErrorException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -24,7 +23,7 @@ class UserService
     }
     public static function getAllUsers(): LengthAwarePaginator
     {
-        return User::paginate();
+        return User::filterByQueryString()->searchByQueryString()->paginate();
     }
     public static function findUserById(string $userId): User
     {

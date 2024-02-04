@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
 use App\Services\UserService;
-use Arr;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
@@ -17,10 +16,15 @@ class UserController extends Controller
 {
     public function getUsers(): JsonResponse
     {
-        // TODO: Search by query params
-        // TODO: Validate the request
+        try {
+            $users = UserService::getAllUsers();
+        } catch (Exception $exception) {
+            return response()->json([
+                'status' => false,
+                'errors' => $exception->getMessage()
+            ], $exception->getCode());
+        }
 
-        $users = UserService::getAllUsers();
         return (UserResource::collection($users))
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
