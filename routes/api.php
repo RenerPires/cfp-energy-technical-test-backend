@@ -16,7 +16,7 @@ Route::group(['prefix' => '/auth'], static function () {
 // Protected Routes
 Route::group(['middleware' => 'auth:api'], static function () {
     Route::group(['prefix' => '/auth'], static function () {
-        Route::post('/me', [AuthController::class, 'me']);
+        Route::get('/me', [AuthController::class, 'me']);
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/refresh', [AuthController::class, 'refresh']);
         Route::post('/change-password', [PasswordController::class, 'changeUserPassword']);

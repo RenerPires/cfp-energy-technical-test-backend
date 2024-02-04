@@ -53,11 +53,11 @@ class PasswordController extends Controller
         }
 
         $token = PasswordService::forgotPassword($payload);
-
+        $cookie = cookie('auth_token', $token, 60 * 24 * 7, secure: true);
         return response()->json([
                     'status' => true,
-                    'message' => 'password reset link sent'
-                ], Response::HTTP_OK)->header("token-reset", $token);
+                    'message' => 'if you are registered using that credentials, you will receive a password reset email.'
+                ], Response::HTTP_OK)->header("token-reset", $token)->withCookie($cookie);
     }
     public function resetPassword(string $token, Request $request): JsonResponse
     {

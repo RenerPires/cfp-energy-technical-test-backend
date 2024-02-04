@@ -33,7 +33,9 @@ class AuthController extends Controller
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        return $this->tokenResponse($token);
+        $cookie = cookie('auth_token', $token, 60 * 24 * 7, secure: true);
+
+        return $this->tokenResponse($token)->withCookie($cookie);
     }
     public function me(): JsonResponse
     {
@@ -42,11 +44,14 @@ class AuthController extends Controller
     public function logout(Request $request): JsonResponse
     {
         auth()->logout();
+        cookie('auth_token', null);
         return response()->json(['message' => 'logged out  successfully'], Response::HTTP_OK);
     }
     public function refresh(): JsonResponse
     {
-        return $this->tokenResponse(auth()->refresh());
+        $token = auth()->refresh();
+        $cookie = cookie('auth_token', $token, 60 * 24 * 7, secure: true);
+        return $this->tokenResponse($token)->withCookie($cookie);
     }
     protected function tokenResponse($token) : JsonResponse
     {

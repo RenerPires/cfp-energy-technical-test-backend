@@ -27,7 +27,7 @@ class PasswordService
                   <td>
                     <h2 style="margin:0;font-size:2.25em;line-height:1.44em;padding: 0.389em 0 0;font-weight:600;text-align:left"><span>Reset your password</span></h2>
                     <p style="margin:0;font-size:1em;padding: 0.5em 0;text-align:left"></p>
-                    <p style="margin:0;font-size:1em;padding: 0.5em 0;text-align:left"><span>We've received a request to reset the password for the Supabase account associated with </span><span><a href="mailto:$email" rel="noopener noreferrer nofollow" style="color:#0670DB;text-decoration:underline" target="_blank">$email</a></span><span>. No changes have been made to your account yet. To reset your password, click on the button below.</span></p>
+                    <p style="margin:0;font-size:1em;padding: 0.5em 0;text-align:left"><span>We've received a request to reset the password for the User Management App account associated with </span><span><a href="mailto:$email" rel="noopener noreferrer nofollow" style="color:#0670DB;text-decoration:underline" target="_blank">$email</a></span><span>. No changes have been made to your account yet. To reset your password, click on the button below.</span></p>
                     <p style="margin:0;font-size:1em;padding: 0.5em 0;text-align:left"></p>
                     <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation">
                       <tbody style="width:100%">
@@ -66,22 +66,24 @@ HTML;
         $email = $payload['email'];
         $user = User::where('email', $email)->first();
 
-        $token = Str::random();
+        if($user) {
+            $token = Str::random();
 
-        DB::table('password_reset_tokens')->insert([
-            'email' => $email,
-            'token' => $token,
-            'created_at' => now()
-        ]);
+            DB::table('password_reset_tokens')->insert([
+                'email' => $email,
+                'token' => $token,
+                'created_at' => now()
+            ]);
 
-        Resend::emails()->send([
-            'from' => 'User Management <contact@renerpires.dev>',
-            'to' => $email,
-            'subject' => 'Password Recovery',
-            'html' => (self::resetPasswordEmailTemplate($email, Env('FRONTEND_APP_ADDRESS', 'localhost')."/reset-password/$token"))->toHtml(),
-        ]);
+            Resend::emails()->send([
+                'from' => 'User Management App <no-reply@renerpires.dev>',
+                'to' => $email,
+                'subject' => 'Password Recovery',
+                'html' => (self::resetPasswordEmailTemplate($email, Env('FRONTEND_APP_ADDRESS', 'localhost')."/reset-password/$token"))->toHtml(),
+            ]);
+        }
 
-        return $token;
+        return $token ?? "";
     }
     public static function resetPassword($token, $payload): string
     {
