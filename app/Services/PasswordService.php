@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\PasswordResetTokens;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\DB;
@@ -69,10 +70,12 @@ HTML;
         if($user) {
             $token = Str::random();
 
-            DB::table('password_reset_tokens')->insert([
-                'email' => $email,
+            PasswordResetTokens::updateOrInsert([
+                'email' => $email
+            ], [
                 'token' => $token,
-                'created_at' => now()
+                'created_at' => now(),
+                'expires_at' => now()->addMinutes(10)
             ]);
 
             Resend::emails()->send([
@@ -89,10 +92,14 @@ HTML;
     {
         $newPassword = $payload["password"];
 
-        $validateToken = DB::table('password_reset_tokens')->where('token', $token)->first();
+        $validateToken = PasswordResetTokens::where([
+                ['token', '=', $token],
+                ['expires_at', '>', now()]
+            ])
+            ->first();
 
         if(!$validateToken) {
-            throw new BadRequestHttpException("invalid token", code: Response::HTTP_BAD_REQUEST);
+            throw new BadRequestHttpException("invalid or expired token", code: Response::HTTP_BAD_REQUEST);
         }
 
         $user = User::where('email', $validateToken->email)->first();
