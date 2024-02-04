@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Models\User;
+use ErrorException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
+use Mockery\Exception;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Translation\Exception\NotFoundResourceException;
@@ -39,7 +41,11 @@ class UserService
             "password" => Hash::make($payload["password"]),
         ]);
 
-        return User::create(Arr::only($payload, ["id", "first_name", "last_name", "username", "date_of_birth", "email", "password", "phone_number"]));
+        try {
+            return User::create(Arr::only($payload, ["id", "first_name", "last_name", "username", "date_of_birth", "email", "password", "phone_number"]));
+        } catch (\Exception $exception) {
+            throw new Exception("Erro inesperado ao criar usuário: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
     public static function updateUser($userId, $payload): User
     {
@@ -47,7 +53,11 @@ class UserService
             throw new NotFoundResourceException("User with id {$userId} not found", Response::HTTP_NOT_FOUND);
         }
 
-        $user->update($payload);
+        try {
+            $user->update($payload);
+        } catch (\Exception $exception) {
+            throw new Exception("Erro inesperado ao criar usuário: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
 
         return $user;
     }

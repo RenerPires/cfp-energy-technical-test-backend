@@ -6,6 +6,7 @@ use App\Services\PasswordService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 use Mockery\Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -16,7 +17,16 @@ class PasswordController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'password' => 'required|string',
-            'new_password' => 'required|string|confirmed',
+            'new_password' => [
+                'required',
+                'string',
+                'confirmed',
+                Password::min(8)   // must be at least 8 characters in length
+                ->mixedCase()           // must contain mixed case
+                ->numbers()             // must contain at least one digit
+                ->symbols()             // must contain a special character
+                ->uncompromised(),      // must not be a known compromised password
+            ],
         ]);
 
         if($validate->fails()){
@@ -62,7 +72,16 @@ class PasswordController extends Controller
     public function resetPassword(string $token, Request $request): JsonResponse
     {
         $validate = Validator::make($request->all(), [
-            'password' => 'required|string|confirmed',
+            'password' => [
+                'required',
+                'string',
+                'confirmed',
+                Password::min(8)   // must be at least 8 characters in length
+                ->mixedCase()           // must contain mixed case
+                ->numbers()             // must contain at least one digit
+                ->symbols()             // must contain a special character
+                ->uncompromised(),      // must not be a known compromised password
+            ],
         ]);
 
         if($validate->fails()){
