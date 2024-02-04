@@ -15,11 +15,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Lacodix\LaravelModelFilter\Traits\HasFilters;
 use Lacodix\LaravelModelFilter\Traits\IsSearchable;
+use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 {
-    use HasFactory, Notifiable, CanResetPassword, IsSearchable, HasFilters;
+    use HasFactory, Notifiable, HasRoles, CanResetPassword, IsSearchable, HasFilters;
 
     public $incrementing = false;
 
@@ -68,7 +69,10 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 
     public function getJWTCustomClaims(): array
     {
-        return [];
+        return [
+            'roles' => $this->getRoleNames(),
+            'permissions' => $this->getAllPermissions()->pluck('name')
+        ];
     }
 
     protected array $searchable = [

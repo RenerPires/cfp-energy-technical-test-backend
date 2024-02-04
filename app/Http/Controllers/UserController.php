@@ -90,7 +90,8 @@ class UserController extends Controller
         }
 
         try {
-            $model = UserService::createUser($payload);
+            $user = UserService::createUser($payload);
+            $user->assignRole('user');
         } catch (Exception $exception) {
             return response()->json([
                 'status' => false,
@@ -99,8 +100,8 @@ class UserController extends Controller
         }
 
         return response()
-                ->json(["data" => $model], Response::HTTP_CREATED)
-                ->header("Location", $model->id);
+                ->json(["data" => $user], Response::HTTP_CREATED)
+                ->header("Location", $user->id);
     }
     public function updateUser(string $userId, Request $request): JsonResponse
     {
