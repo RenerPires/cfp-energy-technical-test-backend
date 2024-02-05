@@ -71,7 +71,7 @@ class UserService
         }
         try {
             $user = User::create(Arr::only($payload, ["id", "first_name", "last_name", "username", "date_of_birth", "email", "password", "phone_number"]));
-            $user->profile_picture_url = "https://ui-avatars.com/api/?name={$user->first_name}+{$user->last_name}&background=random&format=png";
+            $user->update(["profile_picture_url" => "https://ui-avatars.com/api/?name={$user->first_name}+{$user->last_name}&background=random&format=png"]);
             $user->assignRole('user');
             return $user;
         } catch (\Exception $exception) {

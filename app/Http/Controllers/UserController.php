@@ -57,7 +57,6 @@ class UserController extends Controller
         return (new UserResource($user))
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
-
     }
     public function createUser(Request $request): JsonResponse
     {
@@ -184,7 +183,7 @@ class UserController extends Controller
 
         try {
             UserService::setUserProfilePicture($userId, $payload);
-        } catch (Exception $exception) {
+        } catch (AccessDeniedHttpException|Exception $exception) {
             return response()->json([
                 'status' => false,
                 "errors" => $exception->getMessage()
