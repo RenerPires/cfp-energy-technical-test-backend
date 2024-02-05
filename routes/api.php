@@ -28,6 +28,7 @@ Route::group(['middleware' => 'auth:api'], static function () {
         Route::post('/', [UserController::class, 'createUser']);
         Route::put('/{userId}', [UserController::class, 'updateUser']);
         Route::delete('/{userId}', [UserController::class, 'deleteUser']);
+        Route::post('/{userId}/profile-picture', [UserController::class, 'setUserProfilePicture']);
     });
 });
 

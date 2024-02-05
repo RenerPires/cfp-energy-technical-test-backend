@@ -20,15 +20,19 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $first_name = fake()->firstName();
+        $last_name = fake()->lastName();
         return [
             'id' => Uuid::uuid4(),
-            'first_name' => fake()->firstName(),
-            'last_name' => fake()->lastName(),
+            'first_name' => $first_name,
+            'last_name' => $last_name,
             'username' => fake()->unique()->userName(),
             'phone_number' => fake()->unique()->phoneNumber(),
             'date_of_birth' => fake()->dateTimeBetween('-30 years', '-18 years')->format('Y-m-d'),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
+            'profile_picture_url' => "https://ui-avatars.com/api/?name={$first_name}+{$last_name}&background=random&format=png",
+            'is_active' => true,
             'password' => Hash::make('password'), // password
             'remember_token' => Str::random(10),
         ];

@@ -165,4 +165,32 @@ class UserController extends Controller
         }
         return response()->json([], Response::HTTP_NO_CONTENT);
     }
+    public function setUserProfilePicture(string $userId, Request $request): JsonResponse
+    {
+        $payload = $request->only(["profile_picture"]);
+
+        $validated = Validator::make(array_merge($payload, ["userId" => $userId]), [
+            'userId' => 'required|string|uuid',
+            'profile_picture' => 'required|file|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        if($validated->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'validation error',
+                'errors' => $validated->messages()
+            ], 422);
+        }
+
+        try {
+            UserService::setUserProfilePicture($userId, $payload);
+        } catch (Exception $exception) {
+            return response()->json([
+                'status' => false,
+                "errors" => $exception->getMessage()
+            ], $exception->getCode());
+        }
+
+        return response()->json([], Response::HTTP_OK);
+    }
 }

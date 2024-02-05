@@ -49,6 +49,16 @@ services:
         networks:
             - laravel
 
+    # bucket
+    storage:
+        image: scireum/s3-ninja:latest
+        restart: unless-stopped
+        user: 'sirius'
+        ports:
+            - "9444:9000"
+        networks:
+            - laravel
+
 networks:
     laravel:
         driver: bridge

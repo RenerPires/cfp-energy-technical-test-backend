@@ -30,6 +30,11 @@ class UserService
     {
         return auth()->id() === $userId;
     }
+    private static function resolvePublicFilepath($path) : string
+    {
+        $storageUrl = ENV('CLOUD_URL');
+        return "$storageUrl/$path";
+    }
     public static function getAllUsers(): LengthAwarePaginator
     {
         if(!self::userHaveAbilityTo('view-users')) {
@@ -66,6 +71,7 @@ class UserService
         }
         try {
             $user = User::create(Arr::only($payload, ["id", "first_name", "last_name", "username", "date_of_birth", "email", "password", "phone_number"]));
+            $user->profile_picture_url = "https://ui-avatars.com/api/?name={$user->first_name}+{$user->last_name}&background=random&format=png";
             $user->assignRole('user');
             return $user;
         } catch (\Exception $exception) {
@@ -127,6 +133,23 @@ class UserService
             $user->update(["is_active" => true]);
         } catch (\Exception $exception) {
             throw new Exception("unexpected error when activating for users: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    public static function setUserProfilePicture($userId, $payload): void
+    {
+        if(!self::isSelfMutation($userId)) {
+            throw new AccessDeniedHttpException("you don't have permission to update other user's profile picture", code:Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $path = $payload['profile_picture']->store('profile-picture');
+            $publicPath = self::resolvePublicFilepath($path);
+
+            auth()->user()->update([
+                'profile_picture_url' => $publicPath
+            ]);
+
+        } catch (\Exception $exception) {
+            throw new Exception("unexpected error when updating for users: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }
