@@ -192,4 +192,62 @@ class UserController extends Controller
 
         return response()->json([], Response::HTTP_OK);
     }
+    public function inactivateUser(string $userId): JsonResponse
+    {
+        $validated = Validator::make(
+            ['userId' => $userId],
+            ['userId' => 'required|string|uuid'],
+        );
+
+        if($validated->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'validation error',
+                'errors' => $validated->messages()
+            ], 422);
+        }
+
+        try {
+            UserService::inactivateUser($userId);
+        } catch (AccessDeniedHttpException|NotFoundResourceException|Exception $exception) {
+            return response()->json([
+                'status' => false,
+                'errors' => $exception->getMessage()
+            ], $exception->getCode());
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'user inactivated successfully'
+        ], Response::HTTP_OK);
+    }
+    public function activateUser(string $userId): JsonResponse
+    {
+        $validated = Validator::make(
+            ['userId' => $userId],
+            ['userId' => 'required|string|uuid'],
+        );
+
+        if($validated->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'validation error',
+                'errors' => $validated->messages()
+            ], 422);
+        }
+
+        try {
+            UserService::activateUser($userId);
+        } catch (AccessDeniedHttpException|NotFoundResourceException|Exception $exception) {
+            return response()->json([
+                'status' => false,
+                'errors' => $exception->getMessage()
+            ], $exception->getCode());
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'user activated successfully'
+        ], Response::HTTP_OK);
+    }
 }

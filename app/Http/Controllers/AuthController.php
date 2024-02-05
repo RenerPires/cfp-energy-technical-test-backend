@@ -33,6 +33,14 @@ class AuthController extends Controller
             ], Response::HTTP_UNAUTHORIZED);
         }
 
+        if(!auth()->user()->is_active){
+            auth()->logout();
+            return response()->json([
+                'status' => false,
+                'message' => 'you account is inactive, please contact support'
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $cookie = cookie('auth_token', $token, 60 * 24 * 7, secure: true);
 
         return $this->tokenResponse($token)->withCookie($cookie);

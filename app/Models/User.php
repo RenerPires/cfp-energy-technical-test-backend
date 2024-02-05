@@ -39,6 +39,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'date_of_birth',
         'email',
         'profile_picture_url',
+        'is_active'
     ];
 
     /**
@@ -61,6 +62,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_active' => 'boolean'
     ];
 
     public function getJWTIdentifier()
@@ -72,7 +74,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     {
         return [
             'roles' => $this->getRoleNames(),
-            'permissions' => $this->getAllPermissions()->pluck('name')
+            'permissions' => $this->getPermissionNames()->pluck('name')
         ];
     }
 

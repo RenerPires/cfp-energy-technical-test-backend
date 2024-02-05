@@ -29,6 +29,8 @@ Route::group(['middleware' => 'auth:api'], static function () {
         Route::put('/{userId}', [UserController::class, 'updateUser']);
         Route::delete('/{userId}', [UserController::class, 'deleteUser']);
         Route::post('/{userId}/profile-picture', [UserController::class, 'setUserProfilePicture']);
+        Route::put('/{userId}/inactivate-user', [UserController::class, 'inactivateUser']);
+        Route::put('/{userId}/activate-user', [UserController::class, 'activateUser']);
     });
 });
 
