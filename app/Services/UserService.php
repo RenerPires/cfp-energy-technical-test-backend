@@ -26,11 +26,11 @@ class UserService
     {
         return auth()->user()->can($abilities);
     }
-    private static function isSelfMutation($userId) : bool
+    private static function isSelfMutation($userId): bool
     {
         return auth()->id() === $userId;
     }
-    private static function resolvePublicFilepath($path) : string
+    private static function resolvePublicFilepath($path): string
     {
         $storageUrl = ENV('CLOUD_URL');
         return "$storageUrl/$path";
@@ -107,7 +107,7 @@ class UserService
             throw new Exception("unexpected error when deleting for users: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-    public static function inactivateUser($userId)
+    public static function inactivateUser($userId): void
     {
         if(!self::isSelfMutation($userId) && !self::userHaveAbilityTo('inactivate-users')) {
             throw new AccessDeniedHttpException("you don't have permission to inactivate users", code:Response::HTTP_FORBIDDEN);
@@ -121,7 +121,7 @@ class UserService
             throw new Exception("unexpected error when inactivating for users: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-    public static function activateUser($userId)
+    public static function activateUser($userId): void
     {
         if(!self::isSelfMutation($userId) && !self::userHaveAbilityTo('activate-users')) {
             throw new AccessDeniedHttpException("you don't have permission to activate users", code:Response::HTTP_FORBIDDEN);
