@@ -116,7 +116,10 @@ class UserService
             throw new NotFoundResourceException("user with id {$userId} not found", Response::HTTP_NOT_FOUND);
         }
         try {
-            $user->update(["is_active" => false]);
+            $user->update([
+                "is_active" => false,
+                "inactivated_at" => now()
+            ]);
         } catch (\Exception $exception) {
             throw new Exception("unexpected error when inactivating for users: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -130,7 +133,10 @@ class UserService
             throw new NotFoundResourceException("user with id {$userId} not found", Response::HTTP_NOT_FOUND);
         }
         try {
-            $user->update(["is_active" => true]);
+            $user->update([
+                "is_active" => true,
+                "inactivated_at" => null
+            ]);
         } catch (\Exception $exception) {
             throw new Exception("unexpected error when activating for users: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
         }

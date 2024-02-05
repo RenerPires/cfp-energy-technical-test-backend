@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\PasswordResetTokens;
+use App\Models\User;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -15,10 +17,15 @@ use Illuminate\Support\Facades\DB;
 |
 */
 
-Artisan::command('public $incrementing = false;clear-resets', function () {
-    DB::table('password_reset_tokens')->where('expires_at', '<=', now())->delete();
+Artisan::command('passwords:clear-resets', function () {
+    PasswordResetTokens::whereExpiresAt('<=', now())->delete();
     $this->components->info('Expired reset tokens cleared successfully.');
 })->purpose('Clear expired password reset tokens');
+
+Artisan::command('users:clear-inactive-users', function () {
+    User::whereInactivatedAt('<=', now()->subDays(15))->delete();
+    $this->components->info('Expired reset tokens cleared successfully.');
+})->purpose('Clear user that are inactive for 15 days');
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());

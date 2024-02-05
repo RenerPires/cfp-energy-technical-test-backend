@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('is_active')->default(true);
+            $table->timestamp('inactivated_at')->nullable();
         });
     }
 
@@ -23,6 +24,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('is_active');
+            $table->dropColumn('inactivated_at');
         });
     }
 };
