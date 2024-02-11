@@ -13,7 +13,7 @@ class Authenticate
     {
         $this->auth = $auth;
     }
-    public function handle($request, Closure $next, $guard = null): JsonResponse
+    public function handle($request, Closure $next, $guard = null)
     {
         if($token = $request->cookie('auth_token')){
             $request->headers->set('Authorization', 'Bearer ' . $token);

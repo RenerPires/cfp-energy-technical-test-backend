@@ -63,7 +63,7 @@ class PasswordController extends Controller
         }
 
         $token = PasswordService::forgotPassword($payload);
-        $cookie = cookie('auth_token', $token, 60 * 24 * 7, secure: true);
+        $cookie = cookie('auth_token', $token, 60 * 24 * 7, secure: true, httpOnly: true, sameSite: 'none');
         return response()->json([
                     'status' => true,
                     'message' => 'if you are registered using that credentials, you will receive a password reset email.'

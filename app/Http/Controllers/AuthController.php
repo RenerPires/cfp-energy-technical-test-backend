@@ -2,10 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Mockery\Exception;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class AuthController extends Controller
 {
@@ -45,6 +52,21 @@ class AuthController extends Controller
 
         return $this->tokenResponse($token)->withCookie($cookie);
     }
+    public function signup(Request $request): JsonResponse
+    {
+        $request = array_merge($request, [
+            "id" => Uuid::uuid4()->toString(),
+            "password" => Hash::make($request["password"]),
+        ]);
+        try {
+            $user = User::create(Arr::only($request, ["id", "first_name", "last_name", "username", "date_of_birth", "email", "password", "phone_number"]));
+            $user->update(["profile_picture_url" => "https://ui-avatars.com/api/?name={$user->first_name}+{$user->last_name}&background=random&format=png"]);
+            $user->assignRole('user');
+            return $user;
+        } catch (\Exception $exception) {
+            throw new Exception("unexpected error when signing up: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
     public function me(): JsonResponse
     {
         return response()->json(auth()->user());
@@ -68,7 +90,7 @@ class AuthController extends Controller
             'message' => 'login successfully',
             'token_type'   => 'bearer',
             'access_token' => $token,
-            'user'         => auth()->user(),
+            'user'         => new UserResource(auth()->user()),
             'expires_in'   => auth()->factory()->getTTL() * 60
         ]);
     }

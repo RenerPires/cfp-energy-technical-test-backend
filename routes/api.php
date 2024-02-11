@@ -8,7 +8,7 @@ use App\Http\Controllers\UserController;
 //Public Routes
 Route::group(['prefix' => '/auth'], static function () {
     Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/register', [UserController::class, 'createUser']);
+    Route::post('/register', [AuthController::class, 'signup']);
     Route::post('/forgot-password', [PasswordController::class, 'forgotPassword']);
     Route::post('/reset-password/{token}', [PasswordController::class, 'resetPassword']);
 });
@@ -31,6 +31,7 @@ Route::group(['middleware' => 'auth:api'], static function () {
         Route::post('/{userId}/profile-picture', [UserController::class, 'setUserProfilePicture']);
         Route::put('/{userId}/inactivate-user', [UserController::class, 'inactivateUser']);
         Route::put('/{userId}/activate-user', [UserController::class, 'activateUser']);
+        Route::put('/{userid}/permissions', [UserController::class, 'updateUserPermissions']);
     });
 });
 
