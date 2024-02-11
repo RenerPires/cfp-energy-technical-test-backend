@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\PermissionTypes;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
@@ -37,7 +38,7 @@ class UserService
     }
     public static function getAllUsers(): LengthAwarePaginator
     {
-        if(!self::userHaveAbilityTo('view-users')) {
+        if(!self::userHaveAbilityTo(PermissionTypes::viewUsers)) {
             throw new AccessDeniedHttpException("you don't have permission to view users", code:Response::HTTP_FORBIDDEN);
         }
         try {
@@ -48,7 +49,7 @@ class UserService
     }
     public static function findUserById(string $userId): User
     {
-        if(!self::userHaveAbilityTo('view-users')) {
+        if(!self::userHaveAbilityTo(PermissionTypes::viewUsers)) {
             throw new AccessDeniedHttpException("you don't have permission to view users", code:Response::HTTP_FORBIDDEN);
         }
         if(!$user = self::doesUserExist(["id" => $userId])) {
@@ -66,7 +67,7 @@ class UserService
             "id" => Uuid::uuid4()->toString(),
             "password" => Hash::make($payload["password"]),
         ]);
-        if(!self::userHaveAbilityTo('create-users')) {
+        if(!self::userHaveAbilityTo(PermissionTypes::createUsers)) {
             throw new AccessDeniedHttpException("you don't have permission to create users", code:Response::HTTP_FORBIDDEN);
         }
         try {
@@ -80,7 +81,7 @@ class UserService
     }
     public static function updateUser($userId, $payload): User
     {
-        if(!self::isSelfMutation($userId) && !self::userHaveAbilityTo('update-users')) {
+        if(!self::isSelfMutation($userId) && !self::userHaveAbilityTo(PermissionTypes::updateUsers)) {
             throw new AccessDeniedHttpException("you don't have permission to edit users", code:Response::HTTP_FORBIDDEN);
         }
         if(!$user = self::doesUserExist(["id" => $userId])) {
@@ -95,7 +96,7 @@ class UserService
     }
     public static function deleteUser($userId): void
     {
-        if(!self::userHaveAbilityTo('delete-users')) {
+        if(!self::userHaveAbilityTo(PermissionTypes::deleteUsers)) {
             throw new AccessDeniedHttpException("you don't have permission to delete users", code:Response::HTTP_FORBIDDEN);
         }
         if(!$user = self::doesUserExist(["id" => $userId])) {
@@ -109,7 +110,7 @@ class UserService
     }
     public static function inactivateUser($userId): void
     {
-        if(!self::isSelfMutation($userId) && !self::userHaveAbilityTo('inactivate-users')) {
+        if(!self::isSelfMutation($userId) && !self::userHaveAbilityTo(PermissionTypes::inactivateUsers)) {
             throw new AccessDeniedHttpException("you don't have permission to inactivate users", code:Response::HTTP_FORBIDDEN);
         }
         if(!$user = self::doesUserExist(["id" => $userId])) {
@@ -126,7 +127,7 @@ class UserService
     }
     public static function activateUser($userId): void
     {
-        if(!self::isSelfMutation($userId) && !self::userHaveAbilityTo('activate-users')) {
+        if(!self::isSelfMutation($userId) && !self::userHaveAbilityTo(PermissionTypes::activateUsers)) {
             throw new AccessDeniedHttpException("you don't have permission to activate users", code:Response::HTTP_FORBIDDEN);
         }
         if(!$user = self::doesUserExist(["id" => $userId])) {
@@ -154,6 +155,20 @@ class UserService
                 'profile_picture_url' => $publicPath
             ]);
 
+        } catch (\Exception $exception) {
+            throw new Exception("unexpected error when updating for users: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    public static function updateUserPermissions($userId, $payload): void
+    {
+        if(!self::userHaveAbilityTo(PermissionTypes::updatePermissions)) {
+            throw new AccessDeniedHttpException("you don't have permission to update users permissions", code:Response::HTTP_FORBIDDEN);
+        }
+        if(!$user = self::doesUserExist(["id" => $userId])) {
+            throw new NotFoundResourceException("user with id {$userId} not found", Response::HTTP_NOT_FOUND);
+        }
+        try {
+            $user->syncPermissions($payload['permissions']);
         } catch (\Exception $exception) {
             throw new Exception("unexpected error when updating for users: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
         }

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
+use App\Enums\PermissionTypes;
 
 class RoleSeeder extends Seeder
 {
@@ -15,7 +16,7 @@ class RoleSeeder extends Seeder
         $adminRole = Role::create(['name' => 'admin']);
         $userRole = Role::create(['name' => 'user']);
 
-        $adminRole->givePermissionTo('view-users', 'create-users', 'update-users', 'delete-users', 'grant-permissions', 'revoke-permissions', 'inactivate-users', 'activate-users');
-        $userRole->givePermissionTo('view-users');
+        $adminRole->givePermissionTo(PermissionTypes::viewUsers, PermissionTypes::createUsers, PermissionTypes::updateUsers, PermissionTypes::deleteUsers, PermissionTypes::inactivateUsers, PermissionTypes::activateUsers, PermissionTypes::updatePermissions);
+        $userRole->givePermissionTo(PermissionTypes::viewUsers);
     }
 }

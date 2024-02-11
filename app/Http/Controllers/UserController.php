@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Translation\Exception\NotFoundResourceException;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use App\Enums\PermissionTypes;
 
 class UserController extends Controller
 {
@@ -248,6 +250,38 @@ class UserController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'user activated successfully'
+        ], Response::HTTP_OK);
+    }
+    public function updateUserPermissions(string $userId, Request $request): JsonResponse
+    {
+        $payload = $request->only(["permissions"]);
+
+        $validated = Validator::make(array_merge($payload, ["userId" => $userId]), [
+            'userId' => 'required|string|uuid',
+            'permissions' => ['required','array'],
+            'permissions.*' => [Rule::enum(PermissionTypes::class)],
+        ]);
+
+        if($validated->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'validation error',
+                'errors' => $validated->messages()
+            ], 422);
+        }
+
+        try {
+            UserService::updateUserPermissions($userId, $payload);
+        } catch (AccessDeniedHttpException|NotFoundResourceException|Exception $exception) {
+            return response()->json([
+                'status' => false,
+                "errors" => $exception->getMessage()
+            ], $exception->getCode());
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'user permissions updated successfully'
         ], Response::HTTP_OK);
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 use Mockery\Exception;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,18 +55,58 @@ class AuthController extends Controller
     }
     public function signup(Request $request): JsonResponse
     {
-        $request = array_merge($request, [
-            "id" => Uuid::uuid4()->toString(),
-            "password" => Hash::make($request["password"]),
+        $payload = $request->only(["first_name", "last_name", "username", "date_of_birth", "email", "password", "phone_number"]);
+
+        $validated = Validator::make($payload, [
+            'first_name' => 'required|string|min:3|max:30',
+            'last_name' => 'required|string|min:3|max:30',
+            'username' => 'required|string|min:3|max:15|regex:/^\S*$/u|unique:users,username',
+            'date_of_birth' => 'required|date',
+            'email' => 'required|email|unique:users,email',
+            'password' => [
+                Password::min(8)   // must be at least 8 characters in length
+                ->mixedCase()       // must contain mixed case
+                ->numbers()         // must contain at least one digit
+                ->symbols()         // must contain a special character
+                ->uncompromised(),  // must not be a known compromised password
+            ],
+            'phone_number' => [
+                'required',
+                'unique:users,phone_number',
+                'regex:/^\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$/'
+            ],
         ]);
-        try {
-            $user = User::create(Arr::only($request, ["id", "first_name", "last_name", "username", "date_of_birth", "email", "password", "phone_number"]));
-            $user->update(["profile_picture_url" => "https://ui-avatars.com/api/?name={$user->first_name}+{$user->last_name}&background=random&format=png"]);
-            $user->assignRole('user');
-            return $user;
-        } catch (\Exception $exception) {
-            throw new Exception("unexpected error when signing up: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
+
+        if($validated->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'validation error',
+                'errors' => $validated->messages()
+            ], 422);
         }
+
+        try {
+            $payload = array_merge($payload, [
+                "id" => Uuid::uuid4()->toString(),
+                "password" => Hash::make($payload["password"]),
+            ]);
+            try {
+                $user = User::create(Arr::only($payload, ["id", "first_name", "last_name", "username", "date_of_birth", "email", "password", "phone_number"]));
+                $user->update(["profile_picture_url" => "https://ui-avatars.com/api/?name={$user->first_name}+{$user->last_name}&background=random&format=png"]);
+                $user->assignRole('user');
+            } catch (\Exception $exception) {
+                throw new Exception("unexpected error when signing up: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        } catch (AccessDeniedHttpException|Exception $exception) {
+            return response()->json([
+                'status' => false,
+                'errors' => $exception->getMessage()
+            ], $exception->getCode());
+        }
+
+        return response()
+            ->json(["data" => $user], Response::HTTP_CREATED)
+            ->header("Location", $user->id);
     }
     public function me(): JsonResponse
     {
