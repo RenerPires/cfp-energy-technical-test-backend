@@ -74,7 +74,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     {
         return [
             'roles' => $this->getRoleNames(),
-            'permissions' => $this->getPermissionNames()->pluck('name')
+            'permissions' => $this->getAllPermissions()->pluck('name')
         ];
     }
 

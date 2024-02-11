@@ -158,4 +158,18 @@ class UserService
             throw new Exception("unexpected error when updating for users: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+    public static function updateUserPermissions($userId, $payload): void
+    {
+        if(!self::userHaveAbilityTo('grant-permissions')) {
+            throw new AccessDeniedHttpException("you don't have permission to grant permissions", code:Response::HTTP_FORBIDDEN);
+        }
+        if(!$user = self::doesUserExist(["id" => $userId])) {
+            throw new NotFoundResourceException("user with id {$userId} not found", Response::HTTP_NOT_FOUND);
+        }
+        try {
+            $user->syncPermissions($payload['permissions']);
+        } catch (\Exception $exception) {
+            throw new Exception("unexpected error when updating for users: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }
