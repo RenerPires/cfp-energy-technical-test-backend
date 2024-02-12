@@ -23,9 +23,9 @@ class UserService
         }
         return $query->first();
     }
-    private static function userHaveAbilityTo($abilities): bool
+    private static function userHaveAbilityTo(PermissionTypes $abilitie): bool
     {
-        return auth()->user()->can($abilities);
+        return auth()->user()->can($abilitie->value);
     }
     private static function isSelfMutation($userId): bool
     {
