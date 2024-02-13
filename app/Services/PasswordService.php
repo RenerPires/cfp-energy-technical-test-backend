@@ -82,7 +82,7 @@ HTML;
                 'from' => 'User Management App <no-reply@renerpires.dev>',
                 'to' => $email,
                 'subject' => 'Password Recovery',
-                'html' => (self::resetPasswordEmailTemplate($email, Env('FRONTEND_APP_ADDRESS', 'localhost')."/reset-password/$token"))->toHtml(),
+                'html' => (self::resetPasswordEmailTemplate($email, Env('FRONTEND_APP_ADDRESS', 'localhost')."/reset-password?password-reset-token=$token"))->toHtml(),
             ]);
         }
 
