@@ -14,7 +14,7 @@ To run this project you only need docker installed. Just that 🐋💕.
 
 ## Running the project ☕
 
-Para iniciar o projeto você precisa clonar esse repositório com o seguinte comando:
+To start the project you need to clone this repository with the following command:
 
 ```bash
 git clone https://github.com/RenerPires/cfp-energy-technical-test-backend.git
