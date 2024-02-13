@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
 use Mockery\Exception;
+use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Translation\Exception\NotFoundResourceException;
@@ -15,8 +16,43 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\Enums\PermissionTypes;
 
+/**
+ * @OA\Tag(
+ *     name="Users",
+ *     description="Access users resource and operations"
+ * )
+ **/
 class UserController extends Controller
 {
+    /**
+     * @OA\Get(
+     *      path="/users",
+     *      operationId="getusersList",
+     *      tags={"Users"},
+     *      summary="Get list of projects",
+     *      description="Returns list of projects",
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="data", type="array",
+     *                  @OA\Items(ref="#/components/schemas/User")
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          description="Unauthorized",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="error",
+     *                  type="string",
+     *                  example="Unauthenticated",
+     *              ),
+     *          ),
+     *      ),
+     * )
+     */
     public function getUsers(): JsonResponse
     {
         try {
@@ -32,6 +68,8 @@ class UserController extends Controller
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
     }
+
+
     public function getUserById(string $userId): JsonResponse
     {
         $validated = Validator::make(

@@ -1,0 +1,336 @@
+openapi: 3.0.0
+info:
+  title: 'CFP Energy - User Management Api'
+  contact:
+    email: rener.gbrl.p@gmail.com
+  version: '1.0'
+servers:
+  -
+    url: 'http://localhost:80/'
+    description: 'Local Url'
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: 'User login'
+      operationId: 8cb7742ae98d0990acb2907c4e00bf24
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                email:
+                  type: string
+                  example: john.doe@email.com
+                password:
+                  type: string
+                  example: password
+              type: object
+      responses:
+        200:
+          description: 'Successful login'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'login successfully'
+                  token_type:
+                    type: string
+                    example: bearer
+                  access_token:
+                    type: string
+                    example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9
+                  user:
+                    $ref: '#/components/schemas/User'
+                  expires_in:
+                    type: integer
+                    example: 3600
+                type: object
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: 'User registration'
+      operationId: 480e64a20e7374ed7a0adb110eb3ce25
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                first_name:
+                  type: string
+                  example: John
+                last_name:
+                  type: string
+                  example: Doe
+                email:
+                  type: string
+                  example: john.doe@email.com
+                phone_number:
+                  type: string
+                  example: '+5511999999999'
+                date_of_birth:
+                  type: string
+                  format: date
+                  example: '1999-02-10'
+                username:
+                  type: string
+                  example: johndoe
+                password:
+                  type: string
+                  example: password
+              type: object
+      responses:
+        200:
+          description: 'User successfully registered'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+                type: object
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'validation error'
+                  errors:
+                    type: object
+                type: object
+  /auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: 'Logged in users details'
+      operationId: a9c495788506b114956e3f509e5d90a2
+      responses:
+        200:
+          $ref: '#/components/schemas/User'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+                type: object
+      security:
+        -
+          scalar: Token
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logout
+      operationId: 0d29c740dc06d77602af8095bf4654cc
+      responses:
+        200:
+          description: 'Logged out successfully'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Logged out successfully'
+                type: object
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    type: string
+                    example: Unauthenticated
+                type: object
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: 'Refresh access token'
+      operationId: f6c9683ed975ace7d035a09e6e2a9332
+      responses:
+        200:
+          description: 'Successful refresh'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'login successfully'
+                  token_type:
+                    type: string
+                    example: bearer
+                  access_token:
+                    type: string
+                    example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9
+                  user:
+                    $ref: '#/components/schemas/User'
+                  expires_in:
+                    type: integer
+                    example: 3600
+                type: object
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+                type: object
+      security:
+        -
+          scalar: Token
+  /users:
+    get:
+      tags:
+        - Users
+      summary: 'Get list of projects'
+      description: 'Returns list of projects'
+      operationId: getusersList
+      responses:
+        200:
+          description: 'Successful operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                type: object
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    type: string
+                    example: Unauthenticated
+                type: object
+components:
+  schemas:
+    User:
+      properties:
+        id:
+          title: id
+          description: 'user id'
+          format: string
+          default: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        first_name:
+          title: 'first name'
+          description: 'first name'
+          format: string
+          default: John
+        last_name:
+          title: 'last name'
+          description: 'last name'
+          format: string
+          default: Doe
+        username:
+          title: username
+          description: username
+          format: string
+          default: johndoe
+        phone_number:
+          title: phone_number
+          description: 'phone number'
+          format: string
+          default: '+5511999999999'
+        date_of_birth:
+          title: date_of_birth
+          description: 'date of birth'
+          format: string
+          default: yyyy-mm-dd
+        email:
+          title: email
+          description: email
+          format: string
+          default: john.doe@email.com
+        profile_picture_url:
+          title: profile_picture_url
+          description: "user's profile picture url"
+          format: string
+          default: 'https://ui-avatars.com/api/?name=John+Doe&background=random&format=png'
+        is_active:
+          title: is_active
+          description: 'status of user'
+          format: string
+          default: 'true'
+        roles:
+          title: roles
+          description: roles
+          format: array
+          default:
+            - user
+        permissions:
+          title: permissions
+          description: permissions
+          format: array
+          default:
+            - view-users
+        created_at:
+          title: created_at
+          description: 'date of creation of the user'
+          format: date
+          default: yyyy-mm-dd
+      type: object
+      xml:
+        name: User
+  securitySchemes:
+    'Credentials Based':
+      type: apiKey
+      description: 'Use your email / password combo to obtain a token (e.g.: Bearer {{token}})'
+      name: Token
+      in: header
+      flows:
+        password:
+          authorizationUrl: /auth/login
+          refreshUrl: /auth/refresh
+          scopes: []
+      scheme: http
+    Cookie:
+      type: http
+      description: 'Cookie Based Authentication'
+      name: Cookie
+      in: cookie
+      flows:
+        password:
+          authorizationUrl: /auth/login
+          refreshUrl: /auth/refresh
+          scopes: []
+      scheme: http
+tags:
+  -
+    name: Authentication
+    description: 'Authenticate on project to access the resources'
+  -
+    name: Users
+    description: 'Access users resource and operations'
