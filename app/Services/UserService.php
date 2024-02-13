@@ -42,7 +42,7 @@ class UserService
             throw new AccessDeniedHttpException("you don't have permission to view users", code:Response::HTTP_FORBIDDEN);
         }
         try {
-            return User::filterByQueryString()->searchByQueryString()->paginate();
+            return User::filterByQueryString()->searchByQueryString()->paginate(10);
         } catch (\Exception $exception) {
             throw new Exception("unexpected error when searching for users: {$exception->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
