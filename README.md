@@ -1,59 +1,58 @@
-# Basic structure of a Laravel 10 REST Project
+![Technical Test – CFP Energy – Backend](https://i.imgur.com/m3J50UC.png)
 
-## Running the project
+# Technical Test – CFP Energy – Backend 🚀
 
-Clone this repository
+## Used Technologies
+
+This project uses the following technologies:
+
+![Tecnologias](https://skillicons.dev/icons?i=php,laravel,mysql,docker)
+
+## Requisites
+
+To run this project you only need docker installed. Just that 🐋💕.
+
+## Running the project ☕
+
+Para iniciar o projeto você precisa clonar esse repositório com o seguinte comando:
+
 ```bash
-git clone https://github.com/RenerPires/laravel-utils-base-project.git app-laravel
-```
-```bash
-cd app-laravel/
+git clone https://github.com/RenerPires/cfp-energy-technical-test-backend.git
+cd cfp-energy-technical-test-backend
 ```
 
-Copy the .env.example file to .env
+Don't forget to copy the content of the file `.env.example` to `.env`
+
 ```bash
 cp .env.example .env
 ```
 
-Edit the .env file with your database settings
-```dotenv
-APP_NAME=Laravel
-APP_URL=http://localhost
+After that you only need to create a container to run the project `docker-compose` 🐋
 
-DB_CONNECTION=mysql
-DB_HOST=mysql
-DB_PORT=3306
-DB_DATABASE=database_name
-DB_USERNAME=db_user
-DB_PASSWORD=db_password
-
-CACHE_DRIVER=redis
-QUEUE_CONNECTION=redis
-SESSION_DRIVER=redis
-
-REDIS_HOST=redis
-REDIS_PASSWORD=null
-REDIS_PORT=6379
-```
-
-Start the containers
 ```bash
 docker-compose up -d
 ```
 
-Access the container
+To access the containerized app use the following command:
+
 ```bash
 docker-compose exec app bash
 ```
 
-Install the dependencies
+Install all dependencies via `composer`
+
 ```bash
 composer install
 ```
 
-Generate the application key
+Populate the database with initial data using `artisan`
+
 ```bash
-php artisan key:generate
+php artisan migrate:fresh --seed
 ```
 
-Access the application in your browser at http://localhost
+Finally, you can access the application in your browser at http://localhost
+
+---
+
+Use the following link to access the [Postman Collection and Docs](https://documenter.getpostman.com/view/2484339/2sA2r53k1x)
