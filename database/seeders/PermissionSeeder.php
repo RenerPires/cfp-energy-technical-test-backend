@@ -18,7 +18,6 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'delete-users']);
         Permission::create(['name' => 'inactivate-users']);
         Permission::create(['name' => 'activate-users']);
-        Permission::create(['name' => 'grant-permissions']);
-        Permission::create(['name' => 'revoke-permissions']);
+        Permission::create(['name' => 'update-permissions']);
     }
 }
