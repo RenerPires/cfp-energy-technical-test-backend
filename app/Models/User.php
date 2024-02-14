@@ -7,6 +7,7 @@ use App\Models\Filters\DateOfBirthBeforeFilter;
 use App\Models\Filters\EmailFilter;
 use App\Models\Filters\FirstNameFilter;
 use App\Models\Filters\LastNameFilter;
+use App\Models\Filters\StatusFilter;
 use App\Models\Filters\UsernameFilter;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -107,6 +108,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         UsernameFilter::class,
         EmailFilter::class,
         FirstNameFilter::class,
-        LastNameFilter::class
+        LastNameFilter::class,
+        StatusFilter::class
     ];
 }
