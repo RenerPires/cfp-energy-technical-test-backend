@@ -182,9 +182,10 @@ class UserController extends Controller
     }
     public function deleteUser(string $userId): JsonResponse
     {
-        $validated = Validator::make([$userId], [
-            'userId' => 'required|string|uuid',
-        ]);
+        $validated = Validator::make(
+            ['userId' => $userId],
+            ['userId' => 'required|string|uuid'],
+        );
 
         if($validated->fails()) {
             return response()->json([
